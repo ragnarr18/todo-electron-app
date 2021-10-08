@@ -11,15 +11,15 @@ window.addEventListener('DOMContentLoaded', () => {
 const {ipcRenderer, contextBridge} = require('electron')
 const API = {
   deleteTodo: async({key, position}) => ipcRenderer.invoke("delete-todo", {key, position}),
+  deleteTodoConfirm: async({deleteTodo}) => ipcRenderer.invoke("delete-todo:confirmation", {deleteTodo}),
   storeTodo: async({key, text}) =>  ipcRenderer.invoke("store-todo", {key, text}),
+  changeLayout: async({bottomY}) => ipcRenderer.invoke("change-layout", {bottomY}),
   setText: async({key, text}) => ipcRenderer.invoke("set-text", {key, text}),
   setActive: async({key, active}) => ipcRenderer.invoke("set-active", ( {key, active})),
   createTodo: async() => ipcRenderer.invoke("create-todo"),
   initTodos: async() => ipcRenderer.invoke("init-todos"),
   addTodo: async(text) => ipcRenderer.invoke("add-todo", text),
   recieve: (channel, func) => ipcRenderer.on(channel, (e, ...args) => func(e, ...args) ),
-  darkModetoggle: () => ipcRenderer.invoke('dark-mode:toggle'),
-  darkModeSystem: () => ipcRenderer.invoke('dark-mode:system'),
 }
 
 contextBridge.exposeInMainWorld("api", API)

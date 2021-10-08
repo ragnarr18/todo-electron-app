@@ -1,14 +1,7 @@
 const createToDoButn = document.getElementById('createToDoButn');
 const exitKeys = ['Escape']
-document.getElementById('toggle-dark-mode').addEventListener('click', async () => {
-    const isDarkMode = await myApi.darkModetoggle()
-    document.getElementById('theme-source').innerHTML = isDarkMode ? 'Dark' : 'Light'
-  })
-  
-  document.getElementById('reset-to-system').addEventListener('click', async () => {
-    await myApi.darkModeSystem()
-    document.getElementById('theme-source').innerHTML = 'System'
-  })
+const activeKeys = ['Enter']
+const deleteKeys = ['Delete']
 
 window.api.recieve('add-todo', async (event, args)=> {
     const parent = document.getElementsByClassName("list");
@@ -16,7 +9,27 @@ window.api.recieve('add-todo', async (event, args)=> {
     createItem(args.key, args.text, active=false, parent[0] );
     console.log("created");
     await window.api.storeTodo({key: args.key, text: args.text})
+    changeLayout();
 })
+
+window.api.recieve('focus-input', async(event, args)=>{
+    document.getElementById("inputField").focus();
+})
+
+window.api.recieve('change-layout', async(event, args) => {
+    changeLayout();
+})
+
+function changeLayout(){
+    let parent = document.getElementById("list");
+    console.log(parent);
+    if(parent.childElementCount > 0){
+        let lastElement = document.getElementById("list").lastElementChild;
+        console.log(lastElement.getBoundingClientRect());
+        let bottomY = lastElement.getBoundingClientRect().bottom;
+        window.api.changeLayout({bottomY: bottomY + 40});
+    }
+}
 
 async function deleteTodo(e, key){
     const result = await window.api.deleteTodo({key: key, position: {x: e.screenX, y: e.screenY}})
@@ -26,16 +39,20 @@ async function deleteTodo(e, key){
         if(item.length > 0){
             item[0].parentNode.removeChild(item[0]);
         }
+        changeLayout();
     }
 }
 
 async function createItem(key, value, active, parent){
     const item = document.createElement("div");
     item.className = `item-${key}`;
+    item.id = key;
     item.active = active;
+    item.tabIndex = 0;
     const textDiv = document.createElement("div");
     textDiv.key = key
-    textDiv.className = "todo-text"
+    textDiv.tabIndex = -1;
+    textDiv.className = `text-${key}`
     textDiv.spellcheck = false;
     textDiv.contentEditable = true
     textDiv.onkeydown = (e) => {
@@ -44,21 +61,22 @@ async function createItem(key, value, active, parent){
         }
     }
     textDiv.oninput = async() => {
-        console.log("oninput", textDiv.textContent);
         await window.api.setText({key: key, text: textDiv.textContent})
-    }
-    textDiv.onfocus = () => {
-        console.log("focus", textDiv.textContent);
     }
     const newContent = document.createTextNode(value)
     textDiv.appendChild(newContent)
-    const finishedButton = document.createElement("button");
+    const finishedButton = document.createElement("div");
+    finishedButton.className = `finish-${key}`;
+    finishedButton.tabIndex = -1;
+    const button = document.createElement("button");
+    button.tabIndex = -1;
+    finishedButton.appendChild(button);
     if(item.active){ 
-        await finishTodo(finishedButton);
+        await finishTodo(button);
         await finishTodo(textDiv)
-    }
+    } 
     finishedButton.onclick = async() => {
-        await finishTodo(finishedButton) 
+        await finishTodo(button) 
         await finishTodo(textDiv)
         item.active = !item.active
         await window.api.setActive({key: key, active: item.active})
@@ -67,26 +85,40 @@ async function createItem(key, value, active, parent){
     const textNode = document.createTextNode("\u00D7")
     deleteButton.className = `close-${key}`;
     deleteButton.key = key;
-    deleteButton.onclick = (e) => deleteTodo(e, key);
+    deleteButton.tabIndex = -1;
+    deleteButton.onclick = async(e) => await deleteTodo(e, key);
     deleteButton.appendChild(textNode);
+    item.onfocus = async(e) => {
+        console.log("focused 2");
+        item.onkeydown = async(e) => {
+            if(activeKeys.includes(e.key)){
+                await finishTodo(button) 
+                await finishTodo(textDiv)
+                item.active = !item.active
+                await window.api.setActive({key: key, active: item.active})
+                return;
+            }
+            else if(deleteKeys.includes(e.key)){
+                await deleteTodo(e, key)
+                return;
+            }
+            
+        }
+    }
     item.appendChild(finishedButton)
     item.appendChild(textDiv)
     item.appendChild(deleteButton)
-    console.log(parent);
     parent.appendChild(item)
-    console.log(parent);
-
+    return;
 }
 
 function finishTodo(obj){
     console.log(obj);
     if(obj.classList.contains("success")){
         obj.classList.remove("success")
-        console.log("success");
     }
     else {
         obj.classList.add("success")
-        console.log("not success");
     }
 }
 
@@ -94,13 +126,10 @@ window.api.initTodos().then(async (data) =>{
         console.log("init called");
         const parent = document.createElement("div");
         parent.className = "list";
+        parent.id = "list";
+        await document.body.appendChild(parent);
         for (key in data){
-            await createItem(key, data[key].value, data[key].active, parent )
+            await createItem(key, data[key].value, data[key].active, parent)
         }
-        document.body.appendChild(parent);
+        changeLayout();
     })
-
-
-createToDoButn.addEventListener("click", async() => {
-    const result = await window.api.createTodo()
-})

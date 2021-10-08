@@ -3,14 +3,30 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-    <link rel="stylesheet" href="index.css">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <button id="createToDoButn" class="button is-primary">Create To Do</button>
-    <button id="toggle-dark-mode">Toggle Dark Mode</button>
-    <button id="reset-to-system">Reset to System Theme</button>
-    
+    <form action="">
+      <div class="inputContainer">
+        <input type="text" placeholder="What to do today?" id="inputField" class="inputField" autofocus></input>
+        <button type="submit" class="submitBtn" tabindex="-1"></button>
+      </div>
+  </form>
     <script  src="renderers/main/index.js" defer></script>
+    <script>
+      const form = document.querySelector('form');
+      form.addEventListener('submit', submitForm);
+      function submitForm(e){
+          e.preventDefault();
+          const text = document.querySelector('#inputField').value;
+          document.querySelector('#inputField').value = "";
+          if(text !== ""){window.api.addTodo(text);};
+          document.getElementById("inputField").focus();
+      }
+    </script>
   </body>
 </html>

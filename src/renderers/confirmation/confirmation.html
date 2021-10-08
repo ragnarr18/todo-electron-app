@@ -7,9 +7,20 @@
     <title>Document</title>
 </head>
 <body>
-    <label for="Title"> Do you want to delete this todo?</label>
-    <button type="button">Yes</button>
-    <button type="button" autofocus>No</button>
-    <script src="./index.js"></script>
+    <label for="Title"> Delete Todo?</label>
+    <button id="yes" type="button">Yes</button>
+    <button id="no" type="button" autofocus>No</button>
+    <script src="./index.js" defer></script>
+    <script>
+        // document.getElementById("yes").click = clickBtn;
+        // document.getElementById("no").click = clickBtn;
+        // // yes.addEventListener("click", click(true));
+        // // no.addEventListener("click", click(false));
+        // function clickBtn(e, value){
+        //     console.log(e, value);
+        //     e.preventDefault();
+        //     window.api.deleteTodoConfirmation({deleteTodo: value});
+        // }
+      </script>
 </body>
 </html>

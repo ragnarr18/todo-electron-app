@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const Store = require("./helpers/store")
 const { v4: uuidv4 } = require("uuid");
@@ -8,6 +8,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 //TODO make frameless
+//TODO add clear all
 let mainWindow = null
 let childWindow = null;
 let addWindow = null
@@ -21,10 +22,15 @@ function createChildWindow(position){
     parent: mainWindow,
     modal: true,
     x: position.x,
-    y: position.y
+    y: position.y,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js") // use a preload script
+    }
+  })
+  childWindow.on("close", ()=>{
+    ipcMain.removeHandler("delete-todo:confirmation")
   })
   childWindow.loadFile(path.join(__dirname, 'renderers/confirmation/confirmation.html'));
-
 } 
 
 const createWindow = () => {
@@ -46,6 +52,15 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: windowBounds.width,
     height: windowBounds.height,
+    minHeight: 400,
+    minWidth: 400,
+    autoHideMenuBar: true,
+    // titleBarOverlay: "hidden",
+    // titleBarStyle: "hiddenInset",
+    // autoHideMenuBar: true,
+    // frame: false,
+    // resizable: true,
+    // transparent: true,
     x: windowPosition.x,
     y: windowPosition.y,
     webPreferences: {
@@ -60,22 +75,44 @@ const createWindow = () => {
     app.quit()
   })
 
+  mainWindow.on("focus", () =>{
+    mainWindow.webContents.send("focus-input");
+    mainWindow.webContents.send("change-layout");
+  })
+
   mainWindow.on('resize', () =>{
     let { width, height} = mainWindow.getBounds();
     store.set('windowBounds', 'windowSize' ,{width, height})
+  })
+
+  mainWindow.on("ready-to-show", () =>{
+    mainWindow.webContents.send("change-layout");
+  })
+
+  mainWindow.on("resized", ()=>{
+    mainWindow.webContents.send("change-layout");
   })
 
   mainWindow.on('moved', () => {
     let [x, y] = mainWindow.getPosition()
     store.set( 'windowPosition', 'windowPosition', {x, y})
   })
+
+  // const menu = Menu.buildFromTemplate(menuTemplate);
+  // Menu.setApplicationMenu(menu);
   
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
+function changeLayout(bottomY){
+  let bounds = mainWindow.getBounds(); //{ x: 440, y: 225, width: 100, height: 600 }
+  let newHeight = bottomY
+  console.log("bounds: " , bounds, "newHeight:", newHeight, "bottomY: ", bottomY);
+  mainWindow.setBounds({height: Math.trunc(newHeight)});
+}
 
 ipcMain.handle("init-todos",  (e, arg) =>{
   console.log("init called: ", arg);
@@ -83,15 +120,9 @@ ipcMain.handle("init-todos",  (e, arg) =>{
   return result;
 })
 
-ipcMain.handle("create-todo", (e, arg) => {
-  createAddWindow();
-  return;
-})
-
 ipcMain.handle('add-todo', (e, text)=> {
   console.log("add-todo: main: ", text);
   mainWindow.webContents.send('add-todo', {key: uuidv4(), text: text})
-  addWindow.close();
 })
 
 ipcMain.handle('set-active', (e, args) => {
@@ -111,14 +142,26 @@ ipcMain.handle('set-text', (e, args) => {
   store.set('todos', 'todos', currentObject, true, args.key);
 })
 
-ipcMain.handle('delete-todo', (e, args) => {
-  //promt if user wants to delete todo
+ipcMain.handle('change-layout', (e, args) => {
+  changeLayout(args.bottomY)
+})
+
+ipcMain.handle('delete-todo', async(e, args) => {
   createChildWindow(args.position)
   childWindow.show();
-  // dialog.showMessageBox(mainWindow, {title: "oops"})
-  const result = store.delete(args.key, "todos", "todos");
-  console.log("delete" , args.key, args.position);
-  return result;
+  return new Promise((resolve, reject) => {
+    ipcMain.handle('delete-todo:confirmation', async(e,secondArgs) => {
+      console.log(secondArgs);
+      if(secondArgs.deleteTodo === true){
+        const result = store.delete(args.key, "todos", "todos");
+        console.log("delete" , args.key, args.position);
+        resolve(secondArgs.deleteTodo);
+        childWindow.close();
+      }
+      resolve(secondArgs.deleteTodo);
+      childWindow.close();
+    })
+  })
 })
 
 ipcMain.handle('store-todo', (e, args)=> {
@@ -131,48 +174,10 @@ ipcMain.handle('store-todo', (e, args)=> {
   }
 })
 
-ipcMain.handle('dark-mode:toggle', (e, args) => {
-  if (nativeTheme.shouldUseDarkColors){
-    nativeTheme.themeSource = 'light'
-  }
-  else{
-    nativeTheme.themeSource = 'dark'
-  }
-  return nativeTheme.shouldUseDarkColors;
-})
-
-ipcMain.handle('dark-mode:system', (e, args) => {
-  nativeTheme.themeSource = 'system';
-  return;
-})
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
-
-
-//Add window
-function createAddWindow(){
-  addWindow = new BrowserWindow({
-    width: 400,
-    height: 600,
-    title: 'Add todo',
-    webPreferences: {
-      nodeIntegration: false, // is default value after Electron v5
-      contextIsolation: true, // protect against prototype pollution
-      enableRemoteModule: false, // turn off remote
-      preload: path.join(__dirname, "preload.js") // use a preload script
-    },
-  });
-  // and load the index.html of the add window.
-  addWindow.loadFile(path.join(__dirname, '/renderers/addTodo/addTodoWindow.html'));
-
-  //take away memory
-  addWindow.on('close', ()=> {
-    addWindow = null;
-  })
-}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -190,9 +195,9 @@ app.on('activate', () => {
     createWindow();
   }
 });
-// try {
-//   require('electron-reloader')(module)
-// } catch (_) {}
+try {
+  require('electron-reloader')(module)
+} catch (_) {}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
