@@ -1,5 +1,4 @@
 body {
-  
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   height: 80vh;
   margin: 0;
@@ -80,10 +79,18 @@ body {
 }
 
 .inputField{
+  width: fit-content;
   background-color: rgba(221, 221, 221, 0.534);
   /* background: transparent; */
+  font-size: 3vw;
+  max-width: 70vw;
+  min-width: 70vw;
   border: none;
   border-bottom: solid;
+}
+
+.inputField::placeholder{
+  font-size: 3vw;
 }
 
 .inputField:focus{

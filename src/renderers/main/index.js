@@ -2,8 +2,8 @@ const createToDoButn = document.getElementById('createToDoButn');
 const exitKeys = ['Escape']
 const activeKeys = ['Enter']
 const deleteKeys = ['Delete']
-const navigationKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
-let currentItem = null;
+const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+let currentItemIndex = 0;
 
 window.api.recieve('add-todo', async (event, args)=> {
     const parent = document.getElementsByClassName("list");
@@ -111,6 +111,13 @@ async function createItem(key, value, active, parent){
                 await deleteTodo(e, key)
                 return;
             }
+            else if(arrowKeys.includes(e.key)){
+                return;
+            }
+            else if(exitKeys.includes(e.key)){
+                item.blur();
+                document.getElementById("inputField").focus();
+            }
             else{
                 textDiv.focus();
                 return; 
@@ -140,24 +147,45 @@ window.api.initTodos().then(async (data) =>{
         await document.body.appendChild(parent);
         for (key in data){
             await createItem(key, data[key].value, data[key].active, parent)
-            // document.onkeydown = (e) => {
-            //     if(e.key === 'ArrowDown'){
-            //         const items = document.querySelectorAll("[class*=item]"); //get all elements that contain "item" in className
-            //         if(currentItem == null && items.length > 0){
-            //             currentItem = 0;
-            //             items[0].focus();
-            //             return;
-            //         }
-            //         if(currentItem !== null){
-            //             if(items.length > currentItem + 1){
-            //                 currentItem += 1;
-            //                 items[currentItem].focus();
-            //                 console.log(items[currentItem]);
-            //             }
-            //         }
-            //         return;
-            //     }
-            // }
         }
         changeLayout();
     })
+
+//navigation
+document.onkeydown = (e) => {
+    if(arrowKeys.includes(e.key) ){
+        const inputContainer = document.getElementById("inputField");
+        let items = document.querySelectorAll("[class*=item]"); //get all elements that contain "item" in className
+        let index = 0;
+        items = [inputContainer, ...items];
+        for (let i = 0; i < items.length; i++) {
+            if(document.activeElement === items[i]){
+                console.log("is active", items[i]);
+                items[i].blur();
+                index = i;
+                break;
+            }
+            
+        }
+        if(items.length > 0){
+            switch(e.key){
+                case arrowKeys[0]: //up
+                    if(index > 0){
+                        items[index -1].focus();
+                        break;
+                    }
+                    items[index].focus();
+                    break;
+                case arrowKeys[1]: //down
+                    if(index < items.length -1){
+                        items[index +1].focus()
+                        break;
+                    }
+                    items[index].focus();
+                    break; 
+                // case e.key === arrowKeys[2]: //left
+                // case e.key === arrowKeys[3]: //right
+            }
+        }
+    }
+}
