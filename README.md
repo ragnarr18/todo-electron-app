@@ -17,7 +17,7 @@ A small To-do list app made with Electron
 
 
 ### creating / deleting 
-[create-delete](https://user-images.githubusercontent.com/42973395/137411021-565daca0-93fe-48f0-adbd-ce6a74571541.gif)
+![create-delete](https://user-images.githubusercontent.com/42973395/137411021-565daca0-93fe-48f0-adbd-ce6a74571541.gif)
 
 ### changing the theme
 ![theme](https://user-images.githubusercontent.com/42973395/137411057-76e3dd0b-84a3-4bf3-b91b-f1a3931ed418.gif)
