@@ -14,3 +14,13 @@ A small To-do list app made with Electron
   - theme
   - state of todos
   - window position and size
+
+
+### creating / deleting / editing a todo
+ video
+
+### changing the theme and font size
+  video
+  
+### navigation via arrow keys, editing by typing, deleting by pressing delete 
+  video
