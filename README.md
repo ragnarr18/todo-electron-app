@@ -1,7 +1,7 @@
 # todo-electron-app
 A small To-do list app made with Electron
 
-#features include
+# features include
 - navigation via arrow keys on the todos
 - todos can be checked via pressing Enter or checking the checkbox beside the text
 - todos can be deleted via pressing Delete or clicking the x symble beside the text
