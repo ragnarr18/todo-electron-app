@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
+  <!-- <html data-theme="dark"> -->
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Todo App</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,13 +11,67 @@
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
+    <nav>
+      <div class="left-nav">
+        <div id="dropdown" class="left-nav-link dropdown">
+          <button class="dropbtn">Themes</button>
+          <div id="dropdownContent" class="dropdown-content">
+            <div class="dropdown" id="darkTheme">Dark theme</div>
+            <div class="dropdown" id="lightTheme">Light theme</div>
+          </div>
+        </div>
+        <div class="left-nav-link font-size-container">
+          <img src="https://img.icons8.com/ios-glyphs/30/000000/sentence-case--v2.png" id=""/>
+          <input  min="12" max="64" type="number" name="font-size-input" id="fontSizeInput">
+        </div>
+        <!-- <div class="left-nav-link background-color-container">
+          <input value="12" type="number" name="font-size-input" id="fontSizeInput">
+          <div>background-color</div>
+        </div> -->
+      </div>
+
+      <div class="right-nav">
+        <span class="right-nav-link" id="minimizeWindow">&minus;</span>
+        <span class="right-nav-link" id="closeWindow">&times;</span>
+      </div>
+    
+      <!-- <div class="dropdown ">
+        <button class="dropbtn">Style</button>
+        <div class="dropdown-content">
+          <div id="styleOne">Link 1</div>
+          <div id="styleTwo">Link 1</div>
+          <div id="styleThree">Link 1</div>
+        </div>
+      </div> -->
+    </nav>
     <form action="">
       <div class="inputContainer">
         <input type="text" placeholder="What to do today?" id="inputField" class="inputField" autofocus></input>
         <button type="submit" class="submitBtn" tabindex="-1"></button>
       </div>
   </form>
+  <div id="mainContainer">
+    <div class="list" id="list"></div>
+    <!-- <div class="user-settings">
+      <div class="font-size-container">
+        <input value="12" type="number" name="font-size-input" id="fontSizeInput">
+      </div>
+      <div class="background-color-container">
+        <input value="12" type="number" name="font-size-input" id="fontSizeInput">
+      </div>
+    
+      <div class="dropdown ">
+        <button class="dropbtn">Style</button>
+        <div class="dropdown-content">
+          <div id="styleOne">Link 1</div>
+          <div id="styleTwo">Link 1</div>
+          <div id="styleThree">Link 1</div>
+        </div>
+      </div>
+    </div> -->
+  </div>
     <script  src="renderers/main/index.js" defer></script>
+    <script  src="renderers/navigation/index.js" defer></script>
     <script>
       const form = document.querySelector('form');
       form.addEventListener('submit', submitForm);

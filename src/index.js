@@ -11,7 +11,6 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 //TODO add clear all
 let mainWindow = null
 let childWindow = null;
-let addWindow = null
 
 const store = new Store();
 
@@ -45,8 +44,9 @@ const createWindow = () => {
   let windowPosition = store.get('windowPosition', 'windowPosition');
   if (windowPosition === null){store.set('windowPosition', 'windowPosition', {x: 1300, y: 100})
     windowPosition = store.get('windowPosition', 'windowPosition');
-    console.log(windowPosition);
   }
+  if(store.get('fontSize', 'fontSize') === null){store.set('fontSize', 'fontSize', {fontSize: 12})}
+  if(store.get('theme', 'theme') === null){store.set('theme', 'theme', {theme: 'light'})}
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -54,13 +54,9 @@ const createWindow = () => {
     height: windowBounds.height,
     minHeight: 400,
     minWidth: 400,
+    frame: false,
     autoHideMenuBar: true,
-    // titleBarOverlay: "hidden",
-    // titleBarStyle: "hiddenInset",
-    // autoHideMenuBar: true,
-    // frame: false,
-    // resizable: true,
-    // transparent: true,
+    show: false,
     x: windowPosition.x,
     y: windowPosition.y,
     webPreferences: {
@@ -70,7 +66,7 @@ const createWindow = () => {
       preload: path.join(__dirname, "preload.js") // use a preload script
     }
   });
-
+  mainWindow.on("ready-to-show", mainWindow.show)
   mainWindow.on('closed', () => {
     app.quit()
   })
@@ -86,6 +82,7 @@ const createWindow = () => {
   })
 
   mainWindow.on("ready-to-show", () =>{
+    // mainWindow.webContents.send("set-theme")
     mainWindow.webContents.send("change-layout");
   })
 
@@ -110,18 +107,42 @@ const createWindow = () => {
 function changeLayout(bottomY){
   let bounds = mainWindow.getBounds(); //{ x: 440, y: 225, width: 100, height: 600 }
   let newHeight = bottomY
-  console.log("bounds: " , bounds, "newHeight:", newHeight, "bottomY: ", bottomY);
   mainWindow.setBounds({height: Math.trunc(newHeight)});
 }
 
 ipcMain.handle("init-todos",  (e, arg) =>{
-  console.log("init called: ", arg);
   const result = store.get('todos', 'todos');
   return result;
 })
 
+//make these calls be one function in preload (get, set for all values)
+ipcMain.handle("set-font-size", (e, arg) => {
+  store.set('fontSize', 'fontSize' ,{fontSize: arg.fontSize})
+  
+})
+
+ipcMain.handle("set-theme", (e, arg) => {
+  store.set('theme', 'theme' ,{theme: arg.theme})
+  
+})
+
+ipcMain.handle("get-theme", () => {
+  mainWindow.webContents.send("get-theme", store.get("theme", "theme"))
+})
+
+ipcMain.handle("get-font-size", () => {
+  mainWindow.webContents.send("get-font-size", store.get("fontSize", "fontSize"))
+})
+
+ipcMain.handle("close", () => {
+  mainWindow.close()
+})
+
+ipcMain.handle("minimize", () => {
+  mainWindow.minimize()
+})
+
 ipcMain.handle('add-todo', (e, text)=> {
-  console.log("add-todo: main: ", text);
   mainWindow.webContents.send('add-todo', {key: uuidv4(), text: text})
 })
 
@@ -129,16 +150,13 @@ ipcMain.handle('set-active', (e, args) => {
   let allTodos = store.get("todos", "todos");
   let currentObject = allTodos[args.key]
   currentObject.active = args.active;
-  console.log(currentObject, "after");
   store.set('todos', 'todos', currentObject, true, args.key);
 })
 
 ipcMain.handle('set-text', (e, args) => {
-  console.log("set-text: ", args);
   let allTodos = store.get("todos", "todos");
   let currentObject = allTodos[args.key]
   currentObject.value = args.text;
-  console.log(currentObject, "after");
   store.set('todos', 'todos', currentObject, true, args.key);
 })
 
@@ -151,10 +169,8 @@ ipcMain.handle('delete-todo', async(e, args) => {
   childWindow.show();
   return new Promise((resolve, reject) => {
     ipcMain.handle('delete-todo:confirmation', async(e,secondArgs) => {
-      console.log(secondArgs);
       if(secondArgs.deleteTodo === true){
-        const result = store.delete(args.key, "todos", "todos");
-        console.log("delete" , args.key, args.position);
+        store.delete(args.key, "todos", "todos");
         resolve(secondArgs.deleteTodo);
         childWindow.close();
       }
@@ -165,9 +181,7 @@ ipcMain.handle('delete-todo', async(e, args) => {
 })
 
 ipcMain.handle('store-todo', (e, args)=> {
-  console.log("store-todo",args);
   let data = store.get('todos', 'todos');
-  console.log("data", data);
   if (data === null || !data[args.key]){
     data[args.key] = {"value": args.text, "active": false};
     store.set('todos', 'todos', data)

@@ -1,3 +1,4 @@
+const changeLayout = require("./helpers/layout")
 window.addEventListener('DOMContentLoaded', () => {
     const replaceText = (selector, text) => {
       const element = document.getElementById(selector)
@@ -10,6 +11,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 const {ipcRenderer, contextBridge} = require('electron')
 const API = {
+  getTheme: async() => ipcRenderer.invoke('get-theme'),
+  getFontSize: async() => ipcRenderer.invoke('get-font-size'),
+  setTheme: async({theme}) => ipcRenderer.invoke('set-theme', {theme}),
+  setFontSize: async({fontSize}) => ipcRenderer.invoke('set-font-size', {fontSize}),
+  getBottomY: () => changeLayout(),
+  close: async() => ipcRenderer.invoke('close'),
+  minimize: async() => ipcRenderer.invoke('minimize'),
   deleteTodo: async({key, position}) => ipcRenderer.invoke("delete-todo", {key, position}),
   deleteTodoConfirm: async({deleteTodo}) => ipcRenderer.invoke("delete-todo:confirmation", {deleteTodo}),
   storeTodo: async({key, text}) =>  ipcRenderer.invoke("store-todo", {key, text}),

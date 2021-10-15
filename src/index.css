@@ -1,74 +1,142 @@
+:root{
+  --background-color: white;
+  --navbar-color: #5F5F5F;
+  --dropdown-color: #3C3B3B;
+  --font-familiy: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size: 12pt;
+  --color: black;
+  --submitBtnColor: transparent;
+}
+
+:root[data-theme='dark']{
+  --background-color: #121212;
+  --color: white;
+  --navbar-color: #5F5F5F;
+  --dropdown-color: #3C3B3B;
+  --font-familiy: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size: 12pt;
+  --submitBtnColor: var(--color);
+}
+
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  height: 80vh;
+  font-family: var(--font-familiy, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+  height: 100vh;
   margin: 0;
-  /* margin-top: 20px; */
-  /* width: 100%; */
-  /* -webkit-app-region: drag; */
-  background-color: #ffffff;
-  font-size: 1.2rem;
-  font-size: 5.5vw;
-  /* font-size: x-large; */
-}
-/* 
-::-webkit-scrollbar {
-  display: none;
-} */
-#createToDoButn{
-  -webkit-app-region: no-drag;
+  background-color: var(--background-color, white);
+  /* font-size: var(--font-size, 5.5vw); */
+  color: var(--color);
 }
 
-.titleBar{
+/* navigation */
+nav{
   -webkit-app-region: drag;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-end;
-  flex-wrap: nowrap;
-  width: 100%;
-  height: 2rem;
-  border-bottom: 1px solid black;
   -webkit-user-select: none;
-  background-color: darkgray;
+  width: 100vw;
+  height: 40px;
+  background-color: var(--navbar-color);
+  color: white;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
-/* .title{
-  position: absolute;
-  left: 10px;
-  margin-bottom: 2%;
-  height: 2rem;
-  font-size: 1.6rem;
-}
-
-.minimizeBtn{
+.right-nav-link{
   -webkit-app-region: no-drag;
-  border: none;
-  background-image: url("../src/images/minimize.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  transition: 0.2s;
+  padding: 10px;
   cursor: pointer;
-  outline: none;
-  background-color: transparent;
-  height: 1.5rem;
-  width: 1.5rem;
-  margin-left: 60%;
+  height: 100%;
+  font-size: 1.3rem;
 }
 
-.closeBtn{
-  -webkit-app-region: no-drag;
-  border: none;
-  background-image: url("../src/images/close.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  transition: 0.2s;
-  cursor: pointer;
-  outline: none;
-  background-color: transparent;
-  height: 1.5rem;
-  width: 1.5rem;
+/* .right-nav-link:hover{
+  background-color: red;
 } */
 
+#closeWindow:hover{
+  background-color: red;
+}
+
+#minimizeWindow:hover{
+  background-color: rgb(198, 204, 238)
+}
+
+.right-nav{
+  height: 100%;
+  overflow: hidden;
+}
+
+.left-nav{
+  display: flex;
+  height: 100%;
+}
+
+
+.left-nav-link{
+  height: 100%;
+  -webkit-app-region: no-drag;
+
+  padding-right: 10px;
+}
+
+
+/* [class *="dark"] {
+  --background-color: black;
+  --font-familiy: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size: 10vw;
+} */
+
+/* Dropdown Button */
+.dropbtn {
+  height: 100%;
+  background-color: var(--navbar-color);
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  height: 100%;
+  position: relative;
+  /* display: inline-block; */
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--dropdown-color);
+  width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content div {
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content div:hover {
+  background-color: rgb(0, 68, 255);
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: var(--dropdown-color);}
+
+/* #styleOne:hover{
+  --background-color: black;
+  --color: white;
+  --font-familiy: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size: 10pt;
+} */
 
 .inputContainer{
   display: flex;
@@ -91,6 +159,7 @@ body {
 
 .inputField::placeholder{
   font-size: 3vw;
+  color: var(--color);
 }
 
 .inputField:focus{
@@ -105,22 +174,29 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  background-color: transparent;
+  background-color: var(--submitBtnColor);
+  border-radius: 50%;
   cursor: pointer;
+}
+
+#mainContainer {
+  padding-right: 10%;
+  padding-left: 10%;
 }
 
 
 div[class*="item"]{
   border-color: black;
-  /* border: solid; 
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-width: 0.5px; */
   display: flex;
   flex-direction: row;
   justify-content: center;
   min-width: fit-content;
   align-items: center;
-  /* background-color:lightslategrey; */
+}
+
+div[class*="item"]:focus{
+  background-color: #5F5F5F;
+  
 }
 
 div[class*="item"] button{
@@ -130,8 +206,8 @@ div[class*="item"] button{
   border-width: 0.01em;
   border-radius: 50%;
   cursor: pointer;
-  padding: 2.5vw;
-  font-size: 1px;
+  padding: var(--font-size);
+  font-size: var(--font-size);
   margin: 5px;
 }
 
@@ -144,6 +220,7 @@ div[class*="item"] [class*="close"]{
   /* font-size: 4vw; */
   cursor: pointer;
   margin: 10px;
+  font-size: var(--font-size);
 }
 
 div[class*="item"] [class*="text"]{
@@ -151,6 +228,7 @@ div[class*="item"] [class*="text"]{
   /* background-color: rgb(102, 102, 102); */
   font-family: 'Caveat', cursive;
   hyphens: manual;
+  font-size: var(--font-size);
   /* font-size: x-large; */
   /* font-size: 1.3rem; */
   padding: 10px;

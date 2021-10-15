@@ -11,7 +11,8 @@ window.api.recieve('add-todo', async (event, args)=> {
     createItem(args.key, args.text, active=false, parent[0] );
     console.log("created");
     await window.api.storeTodo({key: args.key, text: args.text})
-    changeLayout();
+    let bottomY = window.api.getBottomY()
+    if(bottomY > 0){window.api.changeLayout({bottomY: bottomY + 40});}
 })
 
 window.api.recieve('focus-input', async(event, args)=>{
@@ -19,19 +20,18 @@ window.api.recieve('focus-input', async(event, args)=>{
 })
 
 window.api.recieve('change-layout', async(event, args) => {
-    changeLayout();
+    let bottomY = window.api.getBottomY()
+    if(bottomY > 0){window.api.changeLayout({bottomY: bottomY + 40});}
 })
 
-function changeLayout(){
-    let parent = document.getElementById("list");
-    console.log(parent);
-    if(parent.childElementCount > 0){
-        let lastElement = document.getElementById("list").lastElementChild;
-        console.log(lastElement.getBoundingClientRect());
-        let bottomY = lastElement.getBoundingClientRect().bottom;
-        window.api.changeLayout({bottomY: bottomY + 40});
-    }
-}
+// function changeLayout(){
+//     let parent = document.getElementById("mainContainer");
+//     if(parent.childElementCount > 0){
+//         let lastElement = document.getElementById("mainContainer").lastElementChild;
+//         let bottomY = lastElement.getBoundingClientRect().bottom;
+//         window.api.changeLayout({bottomY: bottomY + 40});
+//     }
+// }
 
 async function deleteTodo(e, key){
     const result = await window.api.deleteTodo({key: key, position: {x: e.screenX, y: e.screenY}})
@@ -41,7 +41,8 @@ async function deleteTodo(e, key){
         if(item.length > 0){
             item[0].parentNode.removeChild(item[0]);
         }
-        changeLayout();
+        let bottomY = window.api.getBottomY()
+        if(bottomY > 0){window.api.changeLayout({bottomY: bottomY + 40});}
     }
 }
 
@@ -141,14 +142,16 @@ function finishTodo(obj){
 }
 
 window.api.initTodos().then(async (data) =>{
-        const parent = document.createElement("div");
-        parent.className = "list";
-        parent.id = "list";
-        await document.body.appendChild(parent);
+        // const parent = document.createElement("div");
+        const parent = document.getElementById("list")
+        // parent.className = "list";
+        // parent.id = "list";
+        // await document.body.appendChild(parent);
         for (key in data){
             await createItem(key, data[key].value, data[key].active, parent)
         }
-        changeLayout();
+        let bottomY = window.api.getBottomY()
+        if(bottomY > 0){window.api.changeLayout({bottomY: bottomY + 40});}
     })
 
 //navigation
