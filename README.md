@@ -1,7 +1,13 @@
 # todo-electron-app
 A small To-do list app made with Electron
 
-video to demonstrate https://youtu.be/EtHNojEsbPE
+## running the desktop app
+- in the terminal run git clone 
+- npm install
+- npm start
+- play around with the desktop app!
+
+video to demonstrate usage: https://youtu.be/EtHNojEsbPE
 
 ## features include
 - navigation via arrow keys on the todos
