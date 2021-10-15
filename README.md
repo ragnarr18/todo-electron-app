@@ -2,7 +2,7 @@
 A small To-do list app made with Electron
 
 ## running the desktop app
-- in the terminal run git clone 
+- in the terminal run git clone https://github.com/ragnarr18/todo-electron-app.git 
 - npm install
 - npm start
 - play around with the desktop app!
