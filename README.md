@@ -1,5 +1,6 @@
 # todo-electron-app
 A small To-do list app made with Electron
+
 video to demonstrate https://youtu.be/EtHNojEsbPE
 
 ## features include
