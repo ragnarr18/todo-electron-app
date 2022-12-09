@@ -1,5 +1,5 @@
 # todo-electron-app
-A small To-do list app made with Electron
+A small To-do list app made with Electron, a framework used to create desktop apps via a chromium browser
 
 ## running the desktop app
 - in the terminal run git clone https://github.com/ragnarr18/todo-electron-app.git 
